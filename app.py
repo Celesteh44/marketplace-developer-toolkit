@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request
-from pathlib import Path
+import os
 import tempfile
+from pathlib import Path
+
+from flask import Flask, render_template, request
 
 from spec_parser import parse_spec_file, compare_specs
 from payload_validator import parse_payload_file, validate_payload_against_spec
@@ -12,9 +14,11 @@ app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024  # 25 MB
 def save_upload(file_storage, folder: Path) -> Path:
     if not file_storage or not file_storage.filename:
         raise ValueError("Missing uploaded file.")
+
     safe_name = file_storage.filename.replace("/", "_").replace("\\", "_")
     path = folder / safe_name
     file_storage.save(path)
+
     return path
 
 
@@ -57,4 +61,8 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=False
+    )
