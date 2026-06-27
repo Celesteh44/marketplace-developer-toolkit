@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block page_title %}Spec Explorer{% endblock %}
+{% block page_summary %}Compare cached Walmart item specifications and review what changed between the current and previous parsed versions: added fields, removed fields, required status changes, enum updates, and type changes.{% endblock %}
+{% block content %}
+{% if diff_report %}
+<div class="panel mb-4" id="whats-new">
+  <div class="panel-title">What's New: Official Diff Report</div>
+  <div class="diff-report-head">
+    <div>
+      <span class="compare-label">Cached Walmart report</span>
+      <strong>{{ diff_report.name }}</strong>
+      <p class="muted">{{ diff_report.total }} total change rows parsed from the official diff workbook.</p>
+    </div>
+    <form method="get" class="report-picker">
+      <select class="form-select" name="report">
+        {% for report in diff_report.reports %}
+          <option value="{{ report.path }}" {{ 'selected' if report.path == diff_report.path }}>{{ report.name }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-outline-primary">Open report</button>
+    </form>
+  </div>
+  <div class="row g-3 mb-4">
+    {% for label, count in diff_report.counts.items() %}
+      <div class="col-md-6 col-xl-3"><div class="metric-card"><span>{{ label }}</span><strong>{{ count }}</strong></div></div>
+    {% endfor %}
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead><tr><th>Change</th><th>Attribute</th><th>Property</th><th>Old Value</th><th>New Value</th><th>Impacted System</th></tr></thead>
+      <tbody>
+        {% for row in diff_report.rows %}
+        <tr>
+          <td><span class="badge text-bg-light">{{ row.get('Change Type') }}</span></td>
+          <td>{{ row.get('Attribute Name') }}</td>
+          <td>{{ row.get('Property Changed') }}</td>
+          <td class="diff-value">{{ row.get('Old Value') }}</td>
+          <td class="diff-value">{{ row.get('New Value') }}</td>
+          <td>{{ row.get('Impacted System') }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="muted">
+            This cached Walmart diff workbook does not contain row-level changes in the parsed sheet. Use Deep Compare below to compute added, removed, modified, required, enum, and type changes from the local specs.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+<div class="panel mb-4">
+  <div class="panel-title">Deep Compare Any Two Parsed Specs</div>
+  {% if specs|length < 2 %}
+  <div class="empty-state">
+    <h2>{{ 'Import specifications to compare versions' if specs|length == 0 else 'Import another version to compare' }}</h2>
+    <p>
+      {% if specs|length == 0 %}
+      No Walmart specification files are cached yet. Use Developer Portal Sync to download configured public sources, or upload ZIP, XLSX, JSON, or XML files manually.
+      {% else %}
+      One specification is cached. Add a second version before running a comparison.
+      {% endif %}
+    </p>
+    <a class="btn btn-primary" href="{{ url_for('sync.index') }}">Open Developer Portal Sync</a>
+  </div>
+  {% else %}
+  {% if left_spec and right_spec %}
+  <div class="compare-heading">
+    <div>
+      <span class="compare-label">Previous</span>
+      <strong>{{ left_spec.name }} · {{ left_spec.version }}</strong>
+    </div>
+    <div class="compare-arrow">→</div>
+    <div>
+      <span class="compare-label">Current</span>
+      <strong>{{ right_spec.name }} · {{ right_spec.version }}</strong>
+    </div>
+  </div>
+  {% endif %}
+  <form class="row g-3 align-items-end" method="post" action="{{ url_for('specs.compare') }}">
+    <div class="col-md-5">
+      <label class="form-label">Base version</label>
+      <select class="form-select" name="left">
+        {% for spec in specs %}<option value="{{ spec.id }}" {{ 'selected' if spec.id == left }} {{ 'disabled' if not spec.has_attributes }}>{{ spec.name }} · {{ spec.version }}{% if not spec.has_attributes %} · cached only{% endif %}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label">Compare version</label>
+      <select class="form-select" name="right">
+        {% for spec in specs %}<option value="{{ spec.id }}" {{ 'selected' if spec.id == right }} {{ 'disabled' if not spec.has_attributes }}>{{ spec.name }} · {{ spec.version }}{% if not spec.has_attributes %} · cached only{% endif %}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-primary w-100">Run compare</button></div>
+  </form>
+  <p class="muted compare-note">Deep compare reads the parsed local cache and can take longer for full Marketplace specs. Use the official diff report above for the fastest what-changed view.</p>
+  {% endif %}
+</div>
+{% if comparison %}
+<div class="row g-3 mb-4" id="whats-new">
+  {% for label, key in [('Added attributes', 'added'), ('Removed attributes', 'removed'), ('Potential renames', 'renamed'), ('Modified attributes', 'modified'), ('Required changes', 'required_changes'), ('Enum changes', 'enum_changes'), ('Type/path changes', 'type_changes')] %}
+  <div class="col-md-6 col-xl-3"><div class="metric-card accent"><span>{{ label }}</span><strong>{{ comparison.counts[key] }}</strong></div></div>
+  {% endfor %}
+</div>
+<div class="panel mb-4">
+  <div class="panel-title">Comparison Chart</div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead><tr><th>Change type</th><th>Count</th><th>What it means for Support</th></tr></thead>
+      <tbody>
+        <tr><td>Added</td><td>{{ comparison.counts.added }}</td><td>New product type paths or attributes now accepted or required by newer templates.</td></tr>
+        <tr><td>Removed</td><td>{{ comparison.counts.removed }}</td><td>Fields sellers may still submit from older templates.</td></tr>
+        <tr><td>Required status</td><td>{{ comparison.counts.required_changes }}</td><td>Fields that changed between optional and required.</td></tr>
+        <tr><td>Enums</td><td>{{ comparison.counts.enum_changes }}</td><td>Allowed value lists changed; common source of validation failures.</td></tr>
+        <tr><td>Types and arrays</td><td>{{ comparison.counts.type_changes }}</td><td>Data type, array, or object structure changed.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-title">Change Detail</div>
+  <div class="row g-4">
+    <div class="col-lg-6"><h2>Added</h2><ul class="compact-list">{% for item in comparison.added[:80] %}<li>{{ item }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul></div>
+    <div class="col-lg-6"><h2>Removed</h2><ul class="compact-list">{% for item in comparison.removed[:80] %}<li>{{ item }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul></div>
+    <div class="col-lg-6"><h2>Renamed</h2><ul class="compact-list">{% for item in comparison.renamed %}<li>{{ item.before }} → {{ item.after }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul></div>
+    <div class="col-lg-6"><h2>Modified</h2><ul class="compact-list">{% for item in comparison.modified[:80] %}<li>{{ item.path }}: {{ item.changes.keys()|join(', ') }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul></div>
+    <div class="col-lg-6"><h2>Required-field changes</h2><ul class="compact-list">{% for item in comparison.required_changes[:80] %}<li>{{ item.path }}: {{ item.before }} → {{ item.after }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul></div>
+    <div class="col-lg-6"><h2>Enum changes</h2><ul class="compact-list">{% for item in comparison.enum_changes[:80] %}<li>{{ item.path }}</li>{% else %}<li class="muted">None</li>{% endfor %}</ul></div>
+  </div>
+</div>
+{% endif %}
+<div class="panel mt-4">
+  <div class="panel-title">Cached Specifications</div>
+  <div class="table-responsive">
+    <table class="table table-hover"><thead><tr><th>Name</th><th>Version</th><th>Type</th><th>Status</th><th>Attributes</th><th>Downloaded</th><th>Source</th></tr></thead>
+      <tbody>{% for spec in specs %}<tr><td>{{ spec.name }}</td><td>{{ spec.version }}</td><td>{{ spec.file_type }}</td><td><span class="badge text-bg-{{ 'success' if spec.has_attributes else 'secondary' }}">{{ 'Parsed' if spec.has_attributes else 'Cached file' }}</span></td><td>{{ spec.attribute_count }}</td><td>{{ spec.downloaded_at }}</td><td class="text-truncate source-cell">{{ spec.source_url or 'Manual upload' }}</td></tr>{% else %}<tr><td colspan="7" class="muted">No specs cached yet.</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

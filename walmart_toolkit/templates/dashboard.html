@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_summary %}A local-first workspace for Marketplace API Support to track item spec versions, product type requirements, seller payload issues, and recent validation activity.{% endblock %}
+{% block content %}
+<section class="doc-intro">
+  <div>
+    <div class="eyebrow">US Marketplace</div>
+    <h2>Item spec operations</h2>
+    <p>Use this toolkit to work from cached public Walmart specifications without embedding developer documentation in the project.</p>
+  </div>
+  <div class="quick-links">
+    <a href="{{ url_for('sync.index') }}">Refresh specs</a>
+    <a href="{{ url_for('product_types.index') }}">Browse product types</a>
+    <a href="{{ url_for('validator.index') }}">Validate payload</a>
+  </div>
+</section>
+<div class="row g-3">
+  {% for label, value in [('Cached Specs', stats.specs), ('Product Types', stats.product_types), ('Attributes', stats.attributes), ('Validations', stats.validations)] %}
+  <div class="col-md-6 col-xl-3">
+    <div class="metric-card">
+      <span>{{ label }}</span>
+      <strong>{{ value }}</strong>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="row g-4 mt-1">
+  <div class="col-xl-5">
+    <div class="panel">
+      <div class="panel-title">Spec Sync Status</div>
+      <div class="status-line">
+        <span class="status-dot {{ sync_run.status if sync_run else 'warning' }}"></span>
+        <span>{{ sync_run.status|title if sync_run else 'Not configured' }}</span>
+      </div>
+      <p class="muted">{{ sync_run.message if sync_run else 'Configure public spec sources or upload a file to seed the cache.' }}</p>
+      <dl class="detail-list">
+        <dt>Latest Version</dt>
+        <dd>{{ latest_spec.version if latest_spec else 'No cached spec' }}</dd>
+        <dt>Latest Spec</dt>
+        <dd>{{ latest_spec.name if latest_spec else 'None' }}</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="col-xl-7">
+    <div class="panel">
+      <div class="panel-title">Recent Payload Validations</div>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Time</th><th>Product Type</th><th>Status</th><th>Summary</th></tr></thead>
+          <tbody>
+          {% for item in validations %}
+            <tr><td>{{ item.created_at }}</td><td>{{ item.product_type or 'All required fields' }}</td><td><span class="badge text-bg-{{ 'success' if item.status == 'pass' else 'warning' }}">{{ item.status }}</span></td><td>{{ item.summary }}</td></tr>
+          {% else %}
+            <tr><td colspan="4" class="muted">No validations yet.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

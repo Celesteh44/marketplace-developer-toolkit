@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block page_title %}Payload Validator{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="panel">
+      <div class="panel-title">Payload Input</div>
+      <form method="post" enctype="multipart/form-data">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Product type</label>
+            <select class="form-select" name="product_type">
+              <option value="">Validate all required fields</option>
+              {% for pt in product_types %}<option value="{{ pt.product_type }}" {{ 'selected' if product_type == pt.product_type }}>{{ pt.product_type }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Format</label>
+            <select class="form-select" name="payload_format"><option value="json" {{ 'selected' if payload_format == 'json' }}>JSON</option><option value="xml" {{ 'selected' if payload_format == 'xml' }}>XML</option></select>
+          </div>
+          <div class="col-12"><label class="form-label">Upload fallback</label><input class="form-control" type="file" name="payload_file"></div>
+          <div class="col-12"><label class="form-label">Paste payload</label><textarea class="form-control code-input" name="payload">{{ payload }}</textarea></div>
+          <div class="col-12"><button class="btn btn-primary">Validate Payload</button></div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="panel">
+      <div class="panel-title">Validation Results</div>
+      {% if result %}
+        <div class="alert alert-{{ 'success' if result.status == 'pass' else 'warning' }}">{{ result.summary }}</div>
+        {% for issue in result.issues %}
+          <div class="issue">
+            <h2>{{ issue.title }}</h2>
+            <p>{{ issue.detail }}</p>
+            <strong>{{ issue.guidance }}</strong>
+          </div>
+        {% else %}
+          <p class="muted">The payload passed the available checks.</p>
+        {% endfor %}
+      {% else %}
+        <p class="muted">Paste or upload a JSON/XML payload to check required fields, enums, types, array structures, and spec freshness.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

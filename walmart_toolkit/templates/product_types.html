@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block page_title %}Product Type Explorer{% endblock %}
+{% block content %}
+<form class="toolbar" method="get">
+  <input class="form-control" name="q" value="{{ query }}" placeholder="Search product types, attributes, paths, descriptions">
+  <select class="form-select" name="required">
+    <option value="">All fields</option>
+    <option value="1" {{ 'selected' if required == '1' }}>Required only</option>
+    <option value="0" {{ 'selected' if required == '0' }}>Optional only</option>
+  </select>
+  <button class="btn btn-primary">Search</button>
+</form>
+<div class="row g-4">
+  <div class="col-lg-4 col-xl-3">
+    <div class="panel sticky-panel">
+      <div class="panel-title">Product Types</div>
+      <div class="list-group list-group-flush">
+        {% for pt in product_types %}
+        <a class="list-group-item list-group-item-action {{ 'active' if selected == pt.product_type }}" href="{{ url_for('product_types.index', product_type=pt.product_type, q=query, required=required) }}">
+          <span>{{ pt.product_type }}</span><span class="badge rounded-pill text-bg-light">{{ pt.attribute_count }}</span>
+        </a>
+        {% else %}<div class="muted p-3">No product types found.</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8 col-xl-9">
+    <div class="panel">
+      <div class="panel-title">Attributes</div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr><th>Path</th><th>Status</th><th>Type</th><th>Enums</th><th>Description</th><th>Version</th></tr></thead>
+          <tbody>
+          {% for attr in attributes %}
+            <tr>
+              <td><strong>{{ attr.name }}</strong><div class="muted small">{{ attr.path }}</div></td>
+              <td><span class="badge text-bg-{{ 'danger' if attr.required else 'secondary' }}">{{ 'Required' if attr.required else 'Optional' }}</span></td>
+              <td>{{ attr.data_type or 'Unknown' }}</td>
+              <td class="enum-cell">{{ attr.enum_values }}</td>
+              <td>{{ attr.description }}</td>
+              <td>{{ attr.version }}</td>
+            </tr>
+          {% else %}<tr><td colspan="6" class="muted">Select a product type or import specs to browse attributes.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

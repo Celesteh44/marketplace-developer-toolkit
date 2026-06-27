@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block page_title %}Developer Portal Sync{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-5">
+    <div class="panel">
+      <div class="panel-title">Configured Public Sources</div>
+      <form method="post" class="mb-3"><input type="hidden" name="action" value="refresh"><button class="btn btn-primary">Manual Refresh</button></form>
+      <ul class="compact-list">
+        {% for source in sources %}<li><strong>{{ source.name }}</strong><br><span class="muted">{{ source.url }}</span></li>{% else %}<li class="muted">No source URLs configured. Set WALMART_SPEC_SOURCES_JSON for automatic public downloads.</li>{% endfor %}
+      </ul>
+    </div>
+    <div class="panel mt-4">
+      <div class="panel-title">Manual Upload Fallback</div>
+      <form method="post" enctype="multipart/form-data">
+        <input class="form-control mb-2" name="name" placeholder="Spec name">
+        <input class="form-control mb-2" name="version" placeholder="Version">
+        <input class="form-control mb-3" type="file" name="spec_file" required>
+        <button class="btn btn-outline-primary">Import File</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-xl-7">
+    <div class="panel">
+      <div class="panel-title">Sync History</div>
+      <div class="table-responsive"><table class="table"><thead><tr><th>Started</th><th>Status</th><th>Files</th><th>Message</th></tr></thead><tbody>{% for run in history %}<tr><td>{{ run.started_at }}</td><td>{{ run.status }}</td><td>{{ run.files_downloaded }}</td><td>{{ run.message }}</td></tr>{% else %}<tr><td colspan="4" class="muted">No sync runs yet.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

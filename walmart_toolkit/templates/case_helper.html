@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block page_title %}Case Helper{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="panel">
+      <div class="panel-title">Seller Context</div>
+      <form method="post">
+        <label class="form-label">Seller email</label>
+        <textarea class="form-control mb-3" name="email" rows="8">{{ email }}</textarea>
+        <label class="form-label">Payload</label>
+        <textarea class="form-control code-input mb-3" name="payload">{{ payload }}</textarea>
+        <button class="btn btn-primary">Generate Support Notes</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="panel">
+      <div class="panel-title">Recommended Handling</div>
+      {% if result %}
+        <div class="callout">{{ result.issue }}</div>
+        <h2>Next Steps</h2>
+        <ol>{% for step in result.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+        <h2>Internal Notes</h2>
+        <pre class="note-box">{{ result.internal_notes }}</pre>
+        <h2>Seller Response</h2>
+        <pre class="note-box">{{ result.seller_response }}</pre>
+      {% else %}
+        <p class="muted">Paste the case email and payload to draft concise notes and a seller-facing response.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
