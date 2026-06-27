@@ -1,0 +1,368 @@
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Walmart Marketplace Spec Analyzer</title>
+  <style>
+    :root {
+      --wm-blue: #0071dc;
+      --wm-dark: #041e42;
+      --wm-yellow: #ffc220;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d9dee7;
+      --success: #0f8a3b;
+      --danger: #c62828;
+      --warning: #b7791f;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .topbar {
+      background: var(--wm-blue);
+      color: white;
+      padding: 16px 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .spark {
+      color: var(--wm-yellow);
+      font-size: 24px;
+    }
+
+    .nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 34px;
+      display: flex;
+      gap: 22px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav span {
+      color: var(--wm-dark);
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 28px auto;
+      padding: 0 22px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--wm-dark), var(--wm-blue));
+      color: white;
+      padding: 28px;
+      border-radius: 16px;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #dbeafe;
+      max-width: 850px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--wm-dark);
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      font-weight: 700;
+      color: var(--wm-dark);
+    }
+
+    input[type=file] {
+      width: 100%;
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px dashed #9ca3af;
+      border-radius: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      background: var(--wm-blue);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background: #005bb5;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat .number {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--wm-blue);
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #eaf3ff;
+      color: var(--wm-dark);
+      border: 1px solid #bcdcff;
+      padding: 5px 10px;
+      border-radius: 999px;
+      margin: 4px;
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.added { background: #e6f4ea; color: var(--success); }
+    .badge.deleted { background: #fdeaea; color: var(--danger); }
+    .badge.changed { background: #fff7dc; color: var(--warning); }
+
+    pre {
+      white-space: pre-wrap;
+      background: #0b1220;
+      color: #e5e7eb;
+      padding: 16px;
+      border-radius: 10px;
+      max-height: 520px;
+      overflow: auto;
+      font-size: 13px;
+    }
+
+    .error {
+      border-left: 5px solid var(--danger);
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .side-list {
+      padding-left: 18px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 30px;
+    }
+
+    @media (max-width: 900px) {
+      .grid, .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">Walmart Marketplace Spec Analyzer <span class="spark">✦</span></div>
+    <div>Item Setup • Version Diff • Payload Validation</div>
+  </div>
+
+  <div class="nav">
+    <span>Dashboard</span>
+    <span>Compare Specs</span>
+    <span>Validate Payload</span>
+    <span>Product Types</span>
+    <span>Diff Report</span>
+  </div>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Item Spec Versioning & Payload Review</h1>
+      <p>
+        Upload an older Walmart item spec, the latest item spec, and an optional seller payload.
+        This tool compares version changes, product types, required attributes, deleted fields,
+        added fields, and basic array or type issues.
+      </p>
+    </div>
+
+    {% if error %}
+      <div class="card error">{{ error }}</div>
+    {% endif %}
+
+    <div class="grid">
+      <div class="card">
+        <h2>Upload Files</h2>
+
+        <form method="post" enctype="multipart/form-data">
+          <label>Old Spec Version</label>
+          <input type="file" name="old_spec" required>
+          <div class="hint">Example: previous Walmart item spec spreadsheet or JSON schema.</div>
+
+          <label>New Spec Version</label>
+          <input type="file" name="new_spec" required>
+          <div class="hint">Example: latest recommended Walmart item spec.</div>
+
+          <label>Seller Payload Optional</label>
+          <input type="file" name="payload">
+          <div class="hint">Upload seller JSON or XML to check required fields and array structure.</div>
+
+          <button type="submit">Compare Files</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>What This Checks</h2>
+        <ul class="side-list">
+          <li>Product types added or removed</li>
+          <li>Required field changes</li>
+          <li>New and deleted attributes</li>
+          <li>Data type changes</li>
+          <li>Array/list issues</li>
+          <li>Missing required seller payload values</li>
+        </ul>
+      </div>
+    </div>
+
+    {% if result %}
+      <div class="card">
+        <h2>Spec Summary</h2>
+        <div class="stats">
+          <div class="stat">
+            <div class="number">{{ result.new_summary.product_type_count }}</div>
+            <div class="label">Product Types</div>
+          </div>
+          <div class="stat">
+            <div class="number">{{ result.new_summary.attribute_count }}</div>
+            <div class="label">New Spec Attributes</div>
+          </div>
+          <div class="stat">
+            <div class="number">{{ result.comparison.counts.added }}</div>
+            <div class="label">Added Attributes</div>
+          </div>
+          <div class="stat">
+            <div class="number">{{ result.comparison.counts.changed }}</div>
+            <div class="label">Changed Attributes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Product Types in New Spec</h2>
+        {% for pt in result.new_summary.product_types %}
+          <span class="pill">{{ pt }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="card">
+        <h2>Version Diff Results</h2>
+        <p>
+          <span class="badge added">Added: {{ result.comparison.counts.added }}</span>
+          <span class="badge deleted">Deleted: {{ result.comparison.counts.deleted }}</span>
+          <span class="badge changed">Changed: {{ result.comparison.counts.changed }}</span>
+        </p>
+        <pre>{{ result.comparison | tojson(indent=2) }}</pre>
+      </div>
+
+      {% if result.payload_validation %}
+        <div class="card">
+          <h2>Seller Payload Validation</h2>
+          <div class="stats">
+            <div class="stat">
+              <div class="number">{{ result.payload_validation.missing_required_count }}</div>
+              <div class="label">Missing Required</div>
+            </div>
+            <div class="stat">
+              <div class="number">{{ result.payload_validation.type_error_count }}</div>
+              <div class="label">Type Errors</div>
+            </div>
+            <div class="stat">
+              <div class="number">{{ result.payload_validation.array_error_count }}</div>
+              <div class="label">Array Errors</div>
+            </div>
+            <div class="stat">
+              <div class="number">JSON/XML</div>
+              <div class="label">Payload Support</div>
+            </div>
+          </div>
+
+          <pre>{{ result.payload_validation | tojson(indent=2) }}</pre>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <div class="footer">
+    Walmart-inspired internal helper tool for Marketplace item spec comparison and payload review.
+  </div>
+</body>
+</html>
+
