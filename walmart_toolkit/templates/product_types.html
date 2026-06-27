@@ -19,11 +19,49 @@
         <a class="list-group-item list-group-item-action {{ 'active' if selected == pt.product_type }}" href="{{ url_for('product_types.index', product_type=pt.product_type, q=query, required=required) }}">
           <span>{{ pt.product_type }}</span><span class="badge rounded-pill text-bg-light">{{ pt.attribute_count }}</span>
         </a>
-        {% else %}<div class="muted p-3">No product types found.</div>{% endfor %}
+        {% else %}
+          {% for item in registry_items %}
+          <div class="list-group-item registry-list-item">
+            <span>{{ item.feed_type or item.key }}</span>
+            <small>{{ item.category }}</small>
+          </div>
+          {% else %}
+          <div class="muted p-3">No product types found.</div>
+          {% endfor %}
+        {% endfor %}
       </div>
     </div>
   </div>
   <div class="col-lg-8 col-xl-9">
+    {% if product_types|length == 0 and registry_items|length > 0 %}
+    <div class="notice-card mb-4">
+      <div>
+        <strong>Parsed product attributes are not cached yet</strong>
+        <p>The live site is showing Walmart feed/spec registry metadata. Run Developer Portal Sync to download and parse public specs before browsing every attribute.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('sync.index') }}">Open Sync</a>
+    </div>
+    <div class="panel mb-4">
+      <div class="panel-title">Available Feed and Spec Types</div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr><th>Name</th><th>Feed Type</th><th>Category</th><th>Recommended</th><th>Previous</th><th>Diff Report</th></tr></thead>
+          <tbody>
+          {% for item in registry_items %}
+            <tr>
+              <td><strong>{{ item.name }}</strong><div class="muted small">{{ item.key }}</div></td>
+              <td>{{ item.feed_type or 'Documentation' }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.recommended or 'N/A' }}</td>
+              <td>{{ item.previous or 'N/A' }}</td>
+              <td>{{ item.diff_report or 'N/A' }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
     <div class="panel">
       <div class="panel-title">Attributes</div>
       <div class="table-responsive">

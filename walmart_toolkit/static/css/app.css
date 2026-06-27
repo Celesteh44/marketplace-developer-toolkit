@@ -600,6 +600,14 @@ dl { margin: 0; }
 .list-group-item { align-items: center; border-bottom: 1px solid var(--line); color: #344054; display: flex; justify-content: space-between; padding: 9px 10px; }
 .list-group-item-action:hover { background: #f8fbff; }
 .list-group-item.active { background: #eef7ff; color: var(--walmart-blue); }
+.registry-list-item {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 2px;
+}
+.registry-list-item small {
+  color: var(--muted);
+}
 
 .code-input { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; min-height: 330px; }
 .note-box { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 12px; white-space: pre-wrap; }
