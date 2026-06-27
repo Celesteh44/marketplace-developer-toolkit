@@ -14,6 +14,17 @@
     <a href="{{ url_for('validator.index') }}">Validate payload</a>
   </div>
 </section>
+{% if stats.specs == 0 %}
+<div class="notice-card mb-4">
+  <div>
+    <strong>Hosted cache is empty</strong>
+    <p>
+      This live Render instance is showing lightweight registry metadata only. Run a manual sync for selected public specs, or attach persistent storage before parsing large files online.
+    </p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('sync.index') }}">Open Sync</a>
+</div>
+{% endif %}
 <div class="row g-3">
   {% for label, value in [('Cached Specs', stats.specs), ('Product Types', stats.product_types), ('Attributes', stats.attributes), ('Validations', stats.validations)] %}
   <div class="col-md-6 col-xl-3">
@@ -23,6 +34,27 @@
     </div>
   </div>
   {% endfor %}
+</div>
+<div class="panel mt-4">
+  <div class="panel-title">Walmart Spec Registry</div>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Spec</th><th>Feed Type</th><th>Recommended</th><th>Previous</th><th>Diff Report</th></tr></thead>
+      <tbody>
+      {% for item in registry_items %}
+        <tr>
+          <td><strong>{{ item.name }}</strong><br><span class="muted">{{ item.category }}</span></td>
+          <td>{{ item.feed_type or 'Documentation' }}</td>
+          <td>{{ item.recommended or 'N/A' }}</td>
+          <td>{{ item.previous or 'N/A' }}</td>
+          <td>{{ item.diff_report or 'N/A' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="muted">No registry metadata configured.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 <div class="row g-4 mt-1">
   <div class="col-xl-5">

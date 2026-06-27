@@ -16,6 +16,16 @@ Internal Flask toolkit for Marketplace API Support teams working with Walmart Ma
 
 The app downloads public specification files into the local `instance/` folder. That folder is ignored by Git so Walmart documentation, cached ZIP files, and the SQLite database stay on the user's computer instead of being embedded in the repository.
 
+## Render deployment notes
+
+Render starts with an empty filesystem for a new deploy, so parsed spec counts are `0` until Developer Portal Sync downloads and parses public Walmart specs in that environment. The dashboard still shows lightweight built-in spec registry metadata before any heavy sync runs.
+
+- Start command: `python app.py`
+- After deploy, open **Developer Portal Sync** and run **Manual Refresh** if the dashboard is empty.
+- Keep heavy parsing manual on small Render instances to avoid memory spikes.
+- To keep synced specs across redeploys, attach a Render persistent disk and set `WMT_TOOLKIT_DATA_DIR` to the disk mount path, for example `/var/data`.
+- Without persistent storage, the hosted SQLite database and downloaded spec cache can reset when the service redeploys or restarts.
+
 ## Run locally
 
 ```bash

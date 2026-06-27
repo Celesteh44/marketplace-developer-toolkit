@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block page_title %}Developer Portal Sync{% endblock %}
 {% block content %}
+{% if specs|length == 0 %}
+<div class="notice-card mb-4">
+  <div>
+    <strong>No hosted cache yet</strong>
+    <p>This environment has no downloaded Walmart specs yet. Run Manual Refresh to seed SQLite from public Developer Portal files. For Render, attach a persistent disk and set <code>WMT_TOOLKIT_DATA_DIR</code> to the mounted path if you want the cache to survive redeploys.</p>
+  </div>
+  <form method="post"><input type="hidden" name="action" value="refresh"><button class="btn btn-primary">Run Sync Now</button></form>
+</div>
+{% endif %}
 <div class="row g-4">
   <div class="col-xl-5">
     <div class="panel">
